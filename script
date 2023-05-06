@@ -1,0 +1,30 @@
+VERSION="v0.0"
+
+mkdir -p bin
+
+for ARCH in "amd64" "386" "arm64"; do
+    for OS in "darwin" "linux" "windows" "freebsd"; do
+
+        if [[ "${OS}" == "darwin" && "${ARCH}" == "386" ]]; then
+            continue
+        fi
+
+        BINFILE="fon"
+        if [[ "${OS}" == "windows" ]]; then
+            BINFILE="${BINFILE}.exe"
+        fi
+
+        rm -f ${BINFILE}
+
+        GOOS=${OS} GOARCH=${ARCH} go build github.com/Ishmeet/fon
+
+        if [[ "${OS}" == "windows" ]]; then
+            ARCHIVE="fon-${OS}-${ARCH}-${VERSION}.zip"
+            zip bin/${ARCHIVE} ${BINFILE}
+            rm ${BINFILE}
+        else
+            ARCHIVE="fon-${OS}-${ARCH}-${VERSION}.tgz"
+            tar --create --gzip --file=bin/${ARCHIVE} ${BINFILE}
+        fi
+    done
+done
